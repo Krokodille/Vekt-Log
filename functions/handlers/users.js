@@ -89,3 +89,5 @@ exports.login = (req, res) => {
 			} else return res.status(500).json({ error: err.code });
 		});
 };
+
+exports.uploadImage = (req, res) => {};
