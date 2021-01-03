@@ -1,49 +1,25 @@
+const functions = require("firebase-functions");
 
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const { ExportBundleInfo } = require('firebase-functions/lib/providers/analytics');
-
-admin.initializeApp();
-
-const express = require('express'); 
+const {
+	ExportBundleInfo,
+} = require("firebase-functions/lib/providers/analytics");
+const express = require("express");
 const app = express();
 
-app.get('/weight', (req, res) => {
-    admin
-        .firestore()
-        .collection('weight')
-        .get()
-        .then(data => {
-            let weight = [];
-            data.forEach((doc) => {
-                weight.push(doc.data());
-            });
-            return res.json(weight);
-        })
-        .catch(err => console.error(err));
-})
+const FBAuth = require("./util/fbAuth");
 
-exports.createWeight = functions.https.onRequest((req, res) => {
-    if(req.method !== 'POST'){
-        return res.status(400).json({ error: 'Method not allowed'});
-    }
+const { getAllWeights, postOneWeight } = require("./handlers/weight");
+const { signup, login } = require("./handlers/users");
 
-    const newWeight = {
-        weightNr: req.body.weightNr, 
-        userHandle: req.body.userHandle,
-        createdAt: admin.firestore.Timestamp.fromDate(new Date())
-    };
+//Retrieves weights
+app.get("/weights", getAllWeights);
+//Adds a new weight
+app.post("/weight", FBAuth, postOneWeight);
 
-    admin.firestore()
-        .collection('weight')
-        .add(newWeight)
-        .then(doc => {
-            res.json({ message: `document ${doc.id} created successfully`})
-        })
-        .catch(err => {
-            res.status(500).json({ erros: 'something went wrong'});
-            console.error(err);
-        })
-})
+//Users route
+//Signup route
+app.post("/signup", signup);
+//Method for login to the application
+app.post("/login", login);
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions.region("europe-west1").https.onRequest(app);
