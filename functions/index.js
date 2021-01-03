@@ -1,52 +1,25 @@
+const functions = require("firebase-functions");
 
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const { ExportBundleInfo } = require('firebase-functions/lib/providers/analytics');
-
-admin.initializeApp();
-
-const express = require('express'); 
+const {
+	ExportBundleInfo,
+} = require("firebase-functions/lib/providers/analytics");
+const express = require("express");
 const app = express();
 
-app.get('/weights', (req, res) => {
-    admin
-        .firestore()
-        .collection('weights')
-        .orderBy('createdAt', 'desc')
-        .get()
-        .then((data) => {
-            let weights = [];
-            data.forEach((doc) => {
-                weights.push({
-                    weightId: doc.id,
-                    weightNr: doc.data().weightNr,
-                    userHandle: doc.data().userHandle,
-                    createdAt: doc.data().createdAt
-                });
-            });
-            return res.json(weights);
-        })
-        .catch(err => console.error(err));
-});
+const FBAuth = require("./util/fbAuth");
 
-app.post('/weight', (req, res) => {
+const { getAllWeights, postOneWeight } = require("./handlers/weight");
+const { signup, login } = require("./handlers/users");
 
-    const newWeight = {
-        weightNr: req.body.weightNr, 
-        userHandle: req.body.userHandle,
-        createdAt: new Date().toISOString()
-    };
+//Retrieves weights
+app.get("/weights", getAllWeights);
+//Adds a new weight
+app.post("/weight", FBAuth, postOneWeight);
 
-    admin.firestore()
-        .collection('weights')
-        .add(newWeight)
-        .then(doc => {
-            res.json({ message: `document ${doc.id} created successfully`})
-        })
-        .catch(err => {
-            res.status(500).json({ erros: 'something went wrong'});
-            console.error(err);
-        })
-});
+//Users route
+//Signup route
+app.post("/signup", signup);
+//Method for login to the application
+app.post("/login", login);
 
-exports.api = functions.region('europe-west1').https.onRequest(app);
+exports.api = functions.region("europe-west1").https.onRequest(app);
