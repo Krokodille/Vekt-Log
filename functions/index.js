@@ -10,6 +10,7 @@ const FBAuth = require("./util/fbAuth");
 
 const { getAllWeights, postOneWeight } = require("./handlers/weight");
 const { signup, login, uploadImage } = require("./handlers/users");
+const { signup, login } = require("./handlers/users");
 
 //Retrieves weights
 app.get("/weights", getAllWeights);
