@@ -43,7 +43,7 @@ exports.postOneWeight = (req, res) => {
 		});
 };
 
-// Fetch one scream
+// Fetch one weight
 /*exports.getWeight = (req, res) => {
 	let weightData = {};
 	db
@@ -62,11 +62,11 @@ exports.postOneWeight = (req, res) => {
 				.get();
 		})
 		.then((data) => {
-			screamData.comments = [];
+			weightData.comments = [];
 			data.forEach((doc) => {
-				screamData.comments.push(doc.data());
+				weightData.comments.push(doc.data());
 			});
-			return res.json(screamData);
+			return res.json(weightData);
 		})
 		.catch((err) => {
 			console.error(err);
