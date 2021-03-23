@@ -1,9 +1,9 @@
-const { admin, db } = require("../util/admin");
-const config = require("../util/config");
-const firebase = require("firebase");
+const { admin, db } = require('../util/admin');
+const config = require('../util/config');
+const firebase = require('firebase');
 firebase.initializeApp(config);
 
-const { validateSignupData, validateLoginData } = require("../util/validators");
+const { validateSignupData, validateLoginData } = require('../util/validators');
 
 exports.signup = (req, res) => {
 	const newUser = {
@@ -17,7 +17,7 @@ exports.signup = (req, res) => {
 
 	if (!valid) return res.status(400).json(errors);
 
-	const noImg = "no-img.png";
+	const noImg = 'no-img.png';
 
 	//Method for making a new user
 	let token, userId;
@@ -26,7 +26,7 @@ exports.signup = (req, res) => {
 		.get()
 		.then((doc) => {
 			if (doc.exists) {
-				return res.status(400).json({ handle: "this handle is already taken" });
+				return res.status(400).json({ handle: 'this handle is already taken' });
 			} else {
 				return firebase
 					.auth()
@@ -54,12 +54,12 @@ exports.signup = (req, res) => {
 
 		.catch((err) => {
 			console.error(err);
-			if (err.code == "auth/email-already-in-use") {
-				return res.status(400).json({ email: "Email is already in use" });
+			if (err.code == 'auth/email-already-in-use') {
+				return res.status(400).json({ email: 'Email is already in use' });
 			} else {
 				return res
 					.status(500)
-					.json({ general: "Something went wrong, please try again!" });
+					.json({ general: 'Something went wrong, please try again!' });
 			}
 		});
 };
@@ -87,27 +87,27 @@ exports.login = (req, res) => {
 			console.error(err);
 			return res
 				.status(403)
-				.json({ general: "Wrong credentials, please try again" });
+				.json({ general: 'Wrong credentials, please try again' });
 		});
 };
 
 exports.uploadImage = (req, res) => {
-	const BusBoy = require("busboy");
-	const path = require("path");
-	const os = require("os");
-	const fs = require("fs");
+	const BusBoy = require('busboy');
+	const path = require('path');
+	const os = require('os');
+	const fs = require('fs');
 
 	const busboy = new BusBoy({ headers: req.headers });
 
 	let imageFileName;
 	let imageToBeUploaded = {};
 
-	busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-		if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
-			return res.status(400).json({ error: "Wrong file type submitted" });
+	busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+		if (mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
+			return res.status(400).json({ error: 'Wrong file type submitted' });
 		}
 		//my.image.png
-		const imageExtension = filename.split(".")[filename.split(".").length - 1];
+		const imageExtension = filename.split('.')[filename.split('.').length - 1];
 		//873648762387462.png
 		imageFileName = `${Math.round(
 			Math.random() * 1000000000000
@@ -116,7 +116,7 @@ exports.uploadImage = (req, res) => {
 		imageToBeUploaded = { filepath, mimetype };
 		file.pipe(fs.createWriteStream(filepath));
 	});
-	busboy.on("finish", () => {
+	busboy.on('finish', () => {
 		admin
 			.storage()
 			.bucket()
@@ -133,11 +133,11 @@ exports.uploadImage = (req, res) => {
 				return db.doc(`/users/${req.user.handle}`).update({ imageUrl });
 			})
 			.then(() => {
-				return res.json({ message: "Image uploaded successfully" });
+				return res.json({ message: 'Image uploaded successfully' });
 			})
 			.catch((err) => {
 				console.error(err);
-				return res.status(500).json({ error: "Something went wrong" });
+				return res.status(500).json({ error: 'Something went wrong' });
 			});
 	});
 	busboy.end(req.rawBody);

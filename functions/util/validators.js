@@ -7,7 +7,7 @@ const isEmail = (email) => {
 
 //Help method for checking if things are empty
 const isEmpty = (string) => {
-	if (string.trim() == "") return true;
+	if (string.trim() == '') return true;
 	else return false;
 };
 
@@ -16,18 +16,18 @@ exports.validateSignupData = (data) => {
 
 	//Checks if email is empty and valid
 	if (isEmpty(data.email)) {
-		errors.email = "Must not be empty";
+		errors.email = 'Must not be empty';
 	} else if (!isEmail(data.email)) {
-		errors.email = "Must be a valid email address";
+		errors.email = 'Must be a valid email address';
 	}
 
 	//Checks if password is empty
-	if (isEmpty(data.password)) errors.password = "Must not be empty";
+	if (isEmpty(data.password)) errors.password = 'Must not be empty';
 	//Checks if confirm password is the same as password
 	if (data.password !== data.confirmPassword)
-		errors.confirmPassword = "Passwords must match";
+		errors.confirmPassword = 'Passwords must match';
 	//Checks if username is empty
-	if (isEmpty(data.handle)) errors.handle = "Must not be empty";
+	if (isEmpty(data.handle)) errors.handle = 'Must not be empty';
 
 	return {
 		errors,
@@ -38,10 +38,8 @@ exports.validateSignupData = (data) => {
 exports.validateLoginData = (data) => {
 	let errors = {};
 
-	if (isEmpty(data.email)) errors.email = "Must not be empty";
-	if (isEmpty(data.password)) errors.password = "Must not be empty";
-	if (isEmpty(user.email)) errors.email = "Must not be empty";
-	if (isEmpty(user.password)) errors.password = "Must not be empty";
+	if (isEmpty(data.email)) errors.email = 'Must not be empty';
+	if (isEmpty(data.password)) errors.password = 'Must not be empty';
 
 	return {
 		errors,
