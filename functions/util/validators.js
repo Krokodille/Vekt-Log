@@ -5,7 +5,7 @@ const isEmail = (email) => {
 	else return false;
 };
 
-//Help method for checking if things are empty
+//Help method for forms if things are empty
 const isEmpty = (string) => {
 	if (string.trim() == '') return true;
 	else return false;

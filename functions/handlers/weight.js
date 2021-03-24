@@ -1,9 +1,9 @@
-const { db } = require("../util/admin");
+const { db } = require('../util/admin');
 
 exports.getAllWeights = (req, res) => {
 	db
-		.collection("weights")
-		.orderBy("createdAt", "desc")
+		.collection('weights')
+		.orderBy('createdAt', 'desc')
 		.get()
 		.then((data) => {
 			let weights = [];
@@ -21,8 +21,8 @@ exports.getAllWeights = (req, res) => {
 };
 
 exports.postOneWeight = (req, res) => {
-	if (req.body.weightNr === "") {
-		return res.status(400).json({ weightNr: "Weight cannot be empty" });
+	if (req.body.weightNr === '') {
+		return res.status(400).json({ weightNr: 'Weight cannot be empty' });
 	}
 
 	const newWeight = {
@@ -32,13 +32,13 @@ exports.postOneWeight = (req, res) => {
 	};
 
 	db
-		.collection("weights")
+		.collection('weights')
 		.add(newWeight)
 		.then((doc) => {
 			res.json({ message: `weight ${doc.id} added successfully` });
 		})
 		.catch((err) => {
-			res.status(500).json({ erros: "something went wrong" });
+			res.status(500).json({ erros: 'something went wrong' });
 			console.error(err);
 		});
 };
@@ -81,16 +81,16 @@ exports.deleteWeight = (req, res) => {
 		.get()
 		.then((doc) => {
 			if (!doc.exists) {
-				return res.status(404).json({ error: "Weight not found" });
+				return res.status(404).json({ error: 'Weight not found' });
 			}
 			if (doc.data().userHandle !== req.user.handle) {
-				return res.status(403).json({ error: "Unauthorized" });
+				return res.status(403).json({ error: 'Unauthorized' });
 			} else {
 				return document.delete();
 			}
 		})
 		.then(() => {
-			res.json({ message: "Weight deleted successfully" });
+			res.json({ message: 'Weight deleted successfully' });
 		})
 		.catch((err) => {
 			console.error(err);
