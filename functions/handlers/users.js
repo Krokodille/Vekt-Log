@@ -3,7 +3,11 @@ const config = require('../util/config');
 const firebase = require('firebase');
 firebase.initializeApp(config);
 
-const { validateSignupData, validateLoginData } = require('../util/validators');
+const {
+	validateSignupData,
+	validateLoginData,
+	reduceUserDetails,
+} = require('../util/validators');
 
 exports.signup = (req, res) => {
 	const newUser = {
@@ -85,12 +89,31 @@ exports.login = (req, res) => {
 		})
 		.catch((err) => {
 			console.error(err);
+			// auth/wrong-password
+			// auth/user-not-user
 			return res
 				.status(403)
 				.json({ general: 'Wrong credentials, please try again' });
 		});
 };
 
+//ADD USER DETAILS
+exports.addUserDetails = (req, res) => {
+	let userDetails = reduceUserDetails(req.body);
+
+	db
+		.doc(`/users/${req.user.handle}`)
+		.update(userDetails)
+		.then(() => {
+			return res.json({ message: 'Details added successfully' });
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({ error: err.code });
+		});
+};
+
+//Upload image for user
 exports.uploadImage = (req, res) => {
 	const BusBoy = require('busboy');
 	const path = require('path');
@@ -141,4 +164,68 @@ exports.uploadImage = (req, res) => {
 			});
 	});
 	busboy.end(req.rawBody);
+};
+
+exports.getUserDetails = (req, res) => {
+	let userData = {};
+	db
+		.doc(`/users/${req.params.handle}`)
+		.get()
+		.then((doc) => {
+			if (doc.exists) {
+				userData.user = doc.data();
+				return db
+					.collection('weights')
+					.where('userHandle', '==', req.params.handle)
+					.orderBy('createdAt', 'desc')
+					.get();
+			} else {
+				return res.status(404).json({ errror: 'User not found' });
+			}
+		})
+		.then((data) => {
+			userData.weights = [];
+			data.forEach((doc) => {
+				userData.weights.push({
+					body: doc.data().body,
+					createdAt: doc.data().createdAt,
+					userHandle: doc.data().userHandle,
+					userImage: doc.data().userImage,
+					weightId: doc.id,
+				});
+			});
+			return res.json(userData);
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({ error: err.code });
+		});
+};
+
+//Get own user details
+exports.getAuthenticatedUser = (req, res) => {
+	let userData = {};
+	db
+		.doc(`/users/${req.user.handle}`)
+		.get()
+		.then((doc) => {
+			if (doc.exists) {
+				userData.credentials = doc.data();
+				return db
+					.collection('myWeight')
+					.where('userHandle', '==', req.user.handle)
+					.get();
+			}
+		})
+		.then((data) => {
+			userData.weightId = [];
+			data.forEach((doc) => {
+				userData.weightId.push(doc.data());
+			});
+			return res.json(userData);
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({ error: err.code });
+		});
 };
